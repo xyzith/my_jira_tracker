@@ -1,4 +1,4 @@
-function getCurrentTab() {
+function getCurrentChromeTab() {
 	const queryInfo = {
 		active: true,
 		currentWindow: true
@@ -70,6 +70,7 @@ function observeAll(action) {
 }
 function selectTab(tab) {
 	currentTab = tab;
+	ticketList.forEach((t) => t.updateTabStatus());
 	currentTab.renderTicketsList();
 	currentTab.updateTickets();
 }
@@ -132,6 +133,9 @@ class Tabs {
 		observe.call(this, 'add', save);
 		observe.call(this, 'remove', save);
 		this.render();
+	}
+	get isActive() {
+		return currentTab === this;
 	}
 	createListFromArray(tickets) {
 		if(tickets) {
@@ -206,6 +210,9 @@ class Tabs {
 			save()
 			selectTab(ticketList[0]);
 		}
+	}
+	updateTabStatus() {
+		this.el.classList.toggle('active', this.isActive)
 	}
 	render() {
 		const dom = document.querySelector('main > nav');
@@ -384,7 +391,7 @@ const filter = new Filter({
 	}
 });
 
-getCurrentTab().then(function(pagetab){
+getCurrentChromeTab().then(function(pagetab){
 	function initTicketList() {
 		ticketList = [];
 		ticketList.push(new Tabs('Tab 1'));

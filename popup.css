@@ -94,6 +94,7 @@ body > footer nav {
 	padding: .3em .5em;
 	margin: 0 .5em;
 	cursor: pointer;
+	filter: brightness(.9);
 }
 
 .jira > nav .tab .name {
@@ -105,15 +106,19 @@ body > footer nav {
 }
 .jira > nav .tab:before {
 	content: '';
-	border-bottom: 2em solid Beige;
+	border-bottom: 2.1em solid Beige;
 	border-left: 1em solid transparent;
 	position: absolute;
 	top: 0;
 	left: -1em;
 }
 
+.jira > nav .tab.active{
+	filter: none;
+}
+
 .jira > nav .tab .name:disabled {
-	background-color: Beige;
+	background-color: transparent;
 	cursor: pointer;
 }
 
