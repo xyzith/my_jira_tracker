@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+	<head>
+		<title>FFN Jira Tracker</title>
+		<link rel="stylesheet" href="popup.css">
+	</head>
+	<body>
+		<main class="jira">
+			<nav>
+				<button class="new_tab">+</button>
+			</nav>
+			<section class="list">
+			</section>
+		</main>
+		<footer>
+			<div class="btns">
+				<nav class="filter"></nav>
+			</div>
+			<form action="https://jira.tc-gaming.co/jira/secure/QuickSearch.jspa" target="_blank">
+				<input type="text" name="searchString" placeholder="Search">
+				<input type="submit" value="search" style="display:none;">
+			</form>
+		</footer>
+		<script src="popup.js"></script>
+	</body>
+</html>
+

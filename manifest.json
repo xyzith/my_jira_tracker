@@ -1,0 +1,25 @@
+{
+	"manifest_version": 2,
+
+	"name": "Jira Tracker",
+	"description": "Track Jira project/bug.",
+	"version": "1.0",
+
+	"browser_action": {
+		"default_icon": "logo.png",
+		"default_popup": "popup.html",
+		"default_title": "Panel"
+	},
+	"permissions": [
+		"tabs",
+		"https://jira.tc-gaming.co/",
+		"storage",
+		"browsingData"
+	],
+	"content_scripts": [
+		{
+			"matches": ["https://jira.tc-gaming.co/jira/browse/*"],
+			"js": ["content.js"]
+		}
+	]
+}

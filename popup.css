@@ -1,0 +1,147 @@
+body {
+	width: 470px;
+	color: Maroon;
+}
+
+a {
+	text-decoration: none;
+	color: Maroon;
+}
+
+input {
+	width: 440px;
+	box-sizing: border-box;
+}
+
+button {
+	border: 0 none transparent;
+	background-image: none;
+	background-color: transparent;
+	cursor: pointer;
+	color: Maroon;
+}
+
+.jira .ticket {
+	border-bottom: 1px dashed BurlyWood;
+	background-color: Beige;
+	padding: .2em .4em;
+	display: flex;
+}
+.jira .ticket > * {
+	margin: .2em;
+}
+
+.jira .ticket .status {
+	padding: .1em .5em;
+	color: white;
+	border-radius: .3em;
+}
+.jira .ticket details {
+	min-width: 0;
+	flex: 1;
+}
+.jira .ticket details p {
+	white-space: pre;
+}
+.jira .ticket .id {
+	flex-basis: 5em; 
+}
+.jira .ticket .copy,
+.jira .ticket .close {
+	cursor: pointer;
+}
+.jira .ticket summary {
+	white-space: nowrap;
+	cursor: pointer;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+body > footer nav {
+	display: inline-block;
+	padding: .5em;
+}
+.filter button {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	box-sizing: border-box;
+	border-width: .2em;
+	border-style: solid;
+	border-radius: 50%;
+	padding: 0;
+	margin: 0 .1em;
+}
+
+.filter button.inactive {
+	background-color: transparent;
+}
+
+.hide {
+	display: none !important;
+}
+.jira > nav {
+	padding-left: .5em;
+}
+.jira > nav .new_tab{
+	position: absolute;
+	right: .5em;
+	top: .5em;
+}
+.jira > nav .tab{
+	display: inline-block;
+	position: relative;
+	background-color: Beige;
+	padding: .3em .5em;
+	margin: 0 .5em;
+	cursor: pointer;
+}
+
+.jira > nav .tab .name {
+	color: Maroon;
+	display: inline-block;
+	width: auto;
+	border: 0px none transparent;
+	font-size: 1.2em;
+}
+.jira > nav .tab:before {
+	content: '';
+	border-bottom: 2em solid Beige;
+	border-left: 1em solid transparent;
+	position: absolute;
+	top: 0;
+	left: -1em;
+}
+
+.jira > nav .tab .name:disabled {
+	background-color: Beige;
+	cursor: pointer;
+}
+
+.jira > nav .tab .counter {
+	font-size: .5em;
+	top: -.5em;
+	right: -.75em;
+	text-align: center;
+}
+
+.jira > nav .tab .counter:after, 
+.jira > nav .tab .counter {
+	position: absolute;
+	width: 1.5em;
+	line-height: 1.5em;
+	border-radius: 50%;
+	background: Maroon;
+	color: white;
+	z-index: 1;
+}
+	
+.jira > nav .tab .counter:after {
+	pointer-events: none;
+	z-index: 10;
+}
+
+.jira > nav .tab .counter:hover:after {
+	content: '\2716';
+	left: 0;
+	transition:
+}
