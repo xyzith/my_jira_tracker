@@ -60,6 +60,9 @@ body > footer nav {
 	display: inline-block;
 	padding: .5em;
 }
+footer .btns > * {
+	margin: 0.2em;
+}
 .filter button {
 	display: inline-block;
 	width: 1em;
@@ -127,6 +130,7 @@ body > footer nav {
 	top: -.5em;
 	right: -.75em;
 	text-align: center;
+	font-size: 1.0001em; /* fix browser bug */
 }
 
 .jira > nav .tab .counter:after, 
@@ -149,4 +153,12 @@ body > footer nav {
 	content: '\2716';
 	left: 0;
 	transition:
+}
+.import span {
+	cursor: pointer;
+}
+.import input {
+	visibility: hidden;
+	position: absolute;
+	pointer-events: none;
 }

@@ -24,6 +24,7 @@ function sendMessage(tabId, data) {
 }
 function save() {
 	const data = ticketList.map(t => t.export());
+	document.querySelector('footer .btns .export').href = `data:text/plain;charset=UTF-8,${JSON.stringify(data)}`;
 	return new Promise((resolve, reject) => {
 		chrome.storage.local.set({data}, () => resolve());
 	});
@@ -69,10 +70,12 @@ function observeAll(action) {
 	return proxy;
 }
 function selectTab(tab) {
-	currentTab = tab;
-	ticketList.forEach((t) => t.updateTabStatus());
-	currentTab.renderTicketsList();
-	currentTab.updateTickets();
+	if(currentTab !== tab) {
+		currentTab = tab;
+		ticketList.forEach((t) => t.updateTabStatus());
+		currentTab.renderTicketsList();
+		currentTab.updateTickets();
+	}
 }
 class Filter {
 	constructor(config) {
@@ -208,7 +211,9 @@ class Tabs {
 			ticketList.splice(idx, 1);
 			this.el.remove();
 			save()
-			selectTab(ticketList[0]);
+			if(currentTab === this) {
+				selectTab(ticketList[0]);
+			}
 		}
 	}
 	updateTabStatus() {
@@ -418,17 +423,34 @@ getCurrentChromeTab().then(function(pagetab){
 			});
 		}
 	}
+	function bindEvents() {
+		document.querySelector('main > nav .new_tab').addEventListener('click', (e) => {
+			ticketList.push(new Tabs('New Tab'));
+			save();
+		});
+		document.querySelector('footer .btns .import span').addEventListener('click', (e) => {
+			e.target.nextElementSibling.click();
+		});
+		document.querySelector('footer .btns .import input').addEventListener('change', (e) => {
+			const file = e.target.files[0];
+			const reader = new FileReader();
+			reader.addEventListener('load', (e) => { 
+				const list = JSON.parse(reader.result);
+				ticketList = ticketList.concat(list.map(t => new Tabs(t.name, t.tickets)));
+				save();
+				
+			});
+			reader.readAsText(file);
+		});
+	}
 	load().then((list) => {
-		if(Object.keys(list).length) {
-			ticketList = list.data.map(t => new Tabs (t.name, t.tickets));
+		if(list.data && list.data.length) {
+			ticketList = list.data.map(t => new Tabs(t.name, t.tickets));
 		} else {
 			ticketList = initTicketList();
 		}
-		document.querySelector('nav .new_tab').addEventListener('click', () => {
-			ticketList.push(new Tabs('New Tab'))
-			save();
-		});
 		selectTab(ticketList[0]);
+		bindEvents();
 		setupAddBtn();
 	});
 });
