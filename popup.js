@@ -26,12 +26,12 @@ function save() {
 	const data = ticketList.map(t => t.export());
 	document.querySelector('footer .btns .export').href = `data:text/plain;charset=UTF-8,${JSON.stringify(data)}`;
 	return new Promise((resolve, reject) => {
-		chrome.storage.local.set({data}, () => resolve());
+		chrome.storage.local.set({data, lastActiveTab: currentTab.name}, () => resolve());
 	});
 }
-function load() {
+function load(key) {
 	return new Promise((resolve, reject) => {
-		chrome.storage.local.get('data' , value => resolve(value));
+		chrome.storage.local.get(key , value => resolve(value));
 	});
 }
 function observe(prop, action) {
@@ -72,7 +72,7 @@ function observeAll(action) {
 function selectTab(tab) {
 	if(currentTab !== tab) {
 		currentTab = tab;
-		ticketList.forEach((t) => t.updateTabStatus());
+		ticketList.forEach((t) => t.updateActiveState());
 		currentTab.renderTicketsList();
 		currentTab.updateTickets();
 	}
@@ -135,6 +135,8 @@ class Tabs {
 		this.tickets = this.createListFromArray(tickets);
 		observe.call(this, 'add', save);
 		observe.call(this, 'remove', save);
+		observe.call(this.tickets, 'set', this.updateCouter.bind(this));
+		observe.call(this.tickets, 'delete', this.updateCouter.bind(this));
 		this.render();
 	}
 	get isActive() {
@@ -216,15 +218,21 @@ class Tabs {
 			}
 		}
 	}
-	updateTabStatus() {
+	updateActiveState() {
 		this.el.classList.toggle('active', this.isActive)
+	}
+	updateCouter() {
+		if(this.el) {
+			const counter = this.el.querySelector('.counter');
+			const count = Array.from(this.tickets.values()).filter((t) => filter.isShow(t.status)).length;
+			counter.textContent = count > 99 ? '\u221E' : count;
+		}
 	}
 	render() {
 		const dom = document.querySelector('main > nav');
 		const container = document.createElement('div');
 		const name = document.createElement('input');
 		const counter = document.createElement('div');
-		const count = Array.from(this.tickets.values()).filter((t) => filter.isShow(t.status)).length;
 		const saveAndUpdate = (e) => {
 			name.size = countSize()
 			this.name = e.target.value;
@@ -234,7 +242,6 @@ class Tabs {
 		const countSize = () => Math.max(this.name.length - 3, 1);
 		container.className = 'tab';
 		counter.className = 'counter';
-		counter.textContent = count > 99 ? '\u221E' : count;
 		name.className = 'name';
 		name.disabled = true;
 		name.size = countSize();
@@ -253,6 +260,7 @@ class Tabs {
 			}
 		});
 		this.el = container;
+		this.updateCouter();
 		dom.appendChild(container);
 	}
 }
@@ -443,13 +451,16 @@ getCurrentChromeTab().then(function(pagetab){
 			reader.readAsText(file);
 		});
 	}
-	load().then((list) => {
+	load('data').then((list) => {
 		if(list.data && list.data.length) {
 			ticketList = list.data.map(t => new Tabs(t.name, t.tickets));
 		} else {
 			ticketList = initTicketList();
 		}
-		selectTab(ticketList[0]);
+		load('lastActiveTab').then((data) => {
+			const last = ticketList.filter((t) => t.name === data.lastActiveTab);
+			selectTab(last[0] || ticketList[0]);
+		});
 		bindEvents();
 		setupAddBtn();
 	});
