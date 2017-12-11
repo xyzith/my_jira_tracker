@@ -1,4 +1,5 @@
 body {
+	margin: 0;
 	width: 470px;
 	color: Maroon;
 }
@@ -20,7 +21,9 @@ button {
 	cursor: pointer;
 	color: Maroon;
 }
-
+.jira {
+	margin-top: 1em;
+}
 .jira .ticket {
 	border-bottom: 1px dashed BurlyWood;
 	background-color: Beige;
@@ -154,11 +157,51 @@ footer .btns > * {
 	left: 0;
 	transition:
 }
+
 .import span {
 	cursor: pointer;
 }
+
 .import input {
 	visibility: hidden;
 	position: absolute;
 	pointer-events: none;
+}
+
+.lightbox {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	background: rgba(0, 0, 0, .5);
+	top: 0;
+	left: 0;
+	z-index: 100;
+}
+
+.lightbox {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	background: rgba(0, 0, 0, .5);
+	top: 0;
+	left: 0;
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.lightbox .content{
+	border-radius: .4em;
+	background-color: Beige;
+	padding: .5em;
+	font-size: 1.5em;
+	text-align: center;
+	min-height: 0;
+}
+.lightbox .content button{
+	border: 1px solid Maroon;
+	padding: .2em;
+	margin: .2em
 }

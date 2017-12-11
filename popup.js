@@ -77,6 +77,46 @@ function selectTab(tab) {
 		currentTab.updateTickets();
 	}
 }
+class LightBox {
+	constructor() {
+		this.el = this.render();
+	}
+	confirm(text) {
+		document.body.appendChild(this.el)
+		this.text.textContent = text;
+		return new Promise((resolve, reject) => {
+			this.ok.onclick = () => {
+				this.remove();
+				resolve();
+			};
+			this.cancel.onclick = () => {
+				this.remove();
+				reject();
+			};
+		});
+	}
+	remove() {
+		this.el.remove();
+	}
+	render() {
+		const lightbox = document.createElement('div');
+		const content = document.createElement('div');
+		const btns = document.createElement('div');
+		this.text = document.createElement('div');
+		this.ok = document.createElement('button');
+		this.cancel = document.createElement('button');
+		this.ok.textContent = 'OK';
+		this.cancel.textContent = 'Cancel';
+		btns.appendChild(this.ok);
+		btns.appendChild(this.cancel);
+		lightbox.className = 'lightbox';
+		content.className = 'content';
+		content.appendChild(this.text);
+		content.appendChild(btns);
+		lightbox.appendChild(content);
+		return lightbox;
+	}
+}
 class Filter {
 	constructor(config) {
 		this.config = config;
@@ -208,7 +248,7 @@ class Tabs {
 		save();
 	}
 	destroy() {
-		if(confirm(`Remove ${this.name} ?`)) {
+		lightbox.confirm(`Remove ${this.name} ?`).then((ok) => {
 			const idx = ticketList.indexOf(this);
 			ticketList.splice(idx, 1);
 			this.el.remove();
@@ -216,7 +256,7 @@ class Tabs {
 			if(currentTab === this) {
 				selectTab(ticketList[0]);
 			}
-		}
+		}, () => null);
 	}
 	updateActiveState() {
 		this.el.classList.toggle('active', this.isActive)
@@ -337,9 +377,7 @@ class Ticket {
 			item.classList.add('hide');
 		}
 		del.addEventListener('click', () => {
-			if(confirm(`Remove ${this.sta.id} ?`)) {
-				currentTab.remove(this);
-			}
+			lightbox.confirm(`Remove ${this.sta.id} ?`).then(() => currentTab.remove(this), () => null);
 		});
 		copy.addEventListener('click', () => {
 			const range = document.createRange();
@@ -376,6 +414,7 @@ Ticket.fromTab = function(tab) {
 
 var ticketList; // global
 var currentTab;
+const lightbox = new LightBox();
 const filter = new Filter({
 	open: {
 		group: ['open'],
