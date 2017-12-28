@@ -34,7 +34,7 @@ function load(key) {
 		chrome.storage.local.get(key , value => resolve(value));
 	});
 }
-function observe(prop, action) {
+function hook(prop, action) {
 	if(typeof this[prop] === 'function') {
 		let func = this[prop];
 		this[prop] = new Proxy(func, {
@@ -57,7 +57,7 @@ function observe(prop, action) {
 		});
 	}
 }
-function observeAll(action) {
+function hookAll(action) {
 	const proxy = new Proxy(this, {
 		set: function(obj, key, new_val) {
 			if(obj[key] !== new_val) {
@@ -142,6 +142,7 @@ class Filter {
 		}
 		document.head.appendChild(el);
 	}
+	get hook() { return hook }
 	render() {
 		const tar = document.querySelector('body > footer nav');
 		const render = (k) => {
@@ -159,7 +160,7 @@ class Filter {
 				currentTab.renderTicketsList();
 			}
 			btn.addEventListener('click', (e) => this.config[k].show = !this.config[k].show);
-			observe.call(this.config[k], 'show', handler);
+			this.hook.call(this.config[k], 'show', handler);
 			btn.classList.add(k);
 			if(!this.config[k].show) {
 				btn.classList.add('inactive');
@@ -173,15 +174,15 @@ class Tabs {
 	constructor(name, tickets) {
 		this.name = name;
 		this.tickets = this.createListFromArray(tickets);
-		observe.call(this, 'add', save);
-		observe.call(this, 'remove', save);
-		observe.call(this.tickets, 'set', this.updateCouter.bind(this));
-		observe.call(this.tickets, 'delete', this.updateCouter.bind(this));
+		this.hook('add', save);
+		this.hook('set', this.updateCouter.bind(this));
+		this.hook('delete', this.updateCouter.bind(this));
 		this.render();
 	}
 	get isActive() {
 		return currentTab === this;
 	}
+	get hook() { return hook }
 	createListFromArray(tickets) {
 		if(tickets) {
 			return new Map(tickets.map(t => [t.id, new Ticket(t)]));
@@ -224,6 +225,7 @@ class Tabs {
 	parseTable(doc) {
 		const rows = doc.querySelectorAll('#issuetable .issuerow');
 		rows.forEach(this.updateTicket.bind(this));
+		!rows.length && console.error('Error on status update');
 		save();
 	}
 	updateTicket(row) {
@@ -293,7 +295,10 @@ class Tabs {
 		name.addEventListener('blur', saveAndUpdate);
 
 		counter.addEventListener('click', this.destroy.bind(this));
-		container.addEventListener('dblclick', (e) => (name.disabled = false));
+		container.addEventListener('dblclick', (e) => {
+			name.disabled = false;
+			name.focus();
+		});
 		container.addEventListener('click', (e) => {
 			if(e.target != counter) {
 				selectTab(this);
@@ -310,7 +315,7 @@ class Ticket {
 		data = data || {}
 		const sta = Object.assign({}, data);
 
-		this.sta = observeAll.call(sta, () => {
+		this.sta = this.hookAll.call(sta, () => {
 			const old = this.el;
 			this.render();
 			if(old && old.parentNode) {
@@ -321,6 +326,8 @@ class Ticket {
 	get status() {
 		return this.sta.status.replace(/ /g, '').toLowerCase();
 	}
+
+	get hookAll() { return hookAll }
 	export() {
 		const {id} = this.sta;
 		const {url} = this.sta;
@@ -437,7 +444,7 @@ const filter = new Filter({
 		show: true
 	},
 	closed: {
-		group: ['closed'],
+		group: ['closed', 'done'],
 		color: 'DarkGray',
 		show: false
 	}
