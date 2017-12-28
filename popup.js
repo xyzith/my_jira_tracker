@@ -36,11 +36,11 @@ function load(key) {
 }
 function hook(prop, action) {
 	if(typeof this[prop] === 'function') {
-		let func = this[prop];
+		const func = this[prop];
 		this[prop] = new Proxy(func, {
-			apply: (orig, thisArg, args) => {
-				var res = orig.apply(this, args);
-				action(args);
+			apply: (orig, parent, ...args) => {
+				const res = orig.apply(parent, ...args);
+				action(...args);
 				return res;
 			}
 		});
@@ -131,7 +131,7 @@ class Filter {
 		const cfg = this.config;
 		const el = document.createElement('style');
 		for(let k in cfg) {
-			let sta = cfg[k];
+			const sta = cfg[k];
 			let str = '';
 			sta.group.forEach((v) => {
 				str += `.${v},`;
@@ -148,8 +148,7 @@ class Filter {
 		const render = (k) => {
 			const btn = document.createElement('button');
 			const clickHandler = (e) => {
-				var foo = this.config[k].show;
-				this.config[k].show = !foo;
+				this.config[k].show = !this.config[k].show;
 			}
 			const handler = (bool) => {
 				if(bool) {
@@ -175,8 +174,9 @@ class Tabs {
 		this.name = name;
 		this.tickets = this.createListFromArray(tickets);
 		this.hook('add', save);
-		this.hook('set', this.updateCouter.bind(this));
-		this.hook('delete', this.updateCouter.bind(this));
+		this.hook('remove', save);
+		this.hook.call(this.tickets, 'set', this.updateCouter.bind(this));
+		this.hook.call(this.tickets, 'delete', this.updateCouter.bind(this));
 		this.render();
 	}
 	get isActive() {
@@ -311,6 +311,17 @@ class Tabs {
 }
 
 class Ticket {
+	static fromTab(tab) {
+		const {title} = tab;
+		const url = tab.url.replace(/\?.*$/, '');
+		const id = url.match(/browse\/(\w+-\d+)(:?\?|$)/)[1];
+		const data = {title, url, id}
+		return new Promise((resolve, reject) => {
+			sendMessage(tab.id, {action: 'GET_TICKET_INFO'}).then(r => {
+				resolve(new this(Object.assign(data, r)));
+			});
+		});
+	}
 	constructor(data) {
 		data = data || {}
 		const sta = Object.assign({}, data);
@@ -405,18 +416,6 @@ class Ticket {
 		this.el = item;
 		return item;
 	}
-}
-
-Ticket.fromTab = function(tab) {
-	const {title} = tab;
-	const url = tab.url.replace(/\?.*$/, '');
-	const id = url.match(/browse\/(\w+-\d+)(:?\?|$)/)[1];
-	const data = {title, url, id}
-	return new Promise((resolve, reject) => {
-		sendMessage(tab.id, {action: 'GET_TICKET_INFO'}).then(r => {
-			resolve(new this(Object.assign(data, r)));
-		});
-	});
 }
 
 var ticketList; // global
