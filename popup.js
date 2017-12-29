@@ -311,14 +311,18 @@ class Tabs {
 }
 
 class Ticket {
-	static fromTab(tab) {
-		const {title} = tab;
-		const url = tab.url.replace(/\?.*$/, '');
+	static fromTab(pagetab) {
+		return this.parseInfoFromTab(pagetab).then((info) => new this(info));
+	}
+	static parseInfoFromTab(pagetab) {
+		const {title} = pagetab;
+		const url = pagetab.url.replace(/\?.*$/, '');
 		const id = url.match(/browse\/(\w+-\d+)(:?\?|$)/)[1];
 		const data = {title, url, id}
 		return new Promise((resolve, reject) => {
-			sendMessage(tab.id, {action: 'GET_TICKET_INFO'}).then(r => {
-				resolve(new this(Object.assign(data, r)));
+			sendMessage(pagetab.id, {action: 'GET_TICKET_INFO'}).then(r => {
+				r.desc = r.desc.replace(/\n\t*(?=\n)/g, '\n').replace(/\n+/g, '\n');
+				resolve(Object.assign(data, r));
 			});
 		});
 	}
@@ -339,6 +343,12 @@ class Ticket {
 	}
 
 	get hookAll() { return hookAll }
+	updateFromTab(pagetab) {
+		this.constructor.parseInfoFromTab(pagetab).then((info) => {
+			const {desc, status, title} = info
+			Object.assign(this.sta, { desc, status, title});
+		});
+	}
 	export() {
 		const {id} = this.sta;
 		const {url} = this.sta;
@@ -460,18 +470,24 @@ getCurrentChromeTab().then(function(pagetab){
 			currentTab.add(ticket);
 		});
 	}
-	function renderAddBtn(tar) {
-		btn = document.createElement('button');
-		btn.textContent = 'Add this jira ticket.'
-		btn.addEventListener('click', addTicket);
-		tar.appendChild(btn);
+	function renderAddBtn(tar, ticketId) {
+		const {tickets} = currentTab;
+		if(!tickets.has(ticketId)) {
+			btn = document.createElement('button');
+			btn.textContent = 'Add this jira ticket.'
+			btn.addEventListener('click', addTicket);
+			tar.appendChild(btn);
+		} else {
+			tickets.get(ticketId).updateFromTab(pagetab);
+		}
 	}
 	function setupAddBtn() {
 		const {url} = pagetab;
-		if(/browse\/(\w+-\d+)(:?\?|$)/.test(url)) {
+		const ticketId = url.match(/browse\/(\w+-\d+)(:?\?|$)/)[1];
+		if(ticketId) {
 			sendMessage(pagetab.id, {action: 'IS_READY'}).then(r => {
 				if(r) {
-					renderAddBtn(document.querySelector('body > footer .btns'));
+					renderAddBtn(document.querySelector('body > footer .btns'), ticketId);
 				}
 			});
 		}

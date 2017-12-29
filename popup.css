@@ -44,7 +44,7 @@ button {
 	flex: 1;
 }
 .jira .ticket details p {
-	white-space: pre;
+	white-space: pre-wrap;
 }
 .jira .ticket .id {
 	flex-basis: 5em; 
