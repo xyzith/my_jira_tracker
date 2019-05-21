@@ -3,8 +3,61 @@
 	<head>
 		<title>FFN Jira Tracker</title>
 		<link rel="stylesheet" href="popup.css">
+		<link rel="modulepreload" href="TicketStatus.mjs">
+		<link rel="modulepreload" href="TicketRow.mjs">
+		<link rel="modulepreload" href="config.mjs">
+		<link rel="modulepreload" href="components.mjs">
 	</head>
 	<body>
+		<template id="ticket-row">
+			<style>
+				:host {
+					display: flex;
+					padding: 4px 0;
+					border-bottom: 1px dashed;
+				}
+				:host > * {
+					padding: 1px 4px;
+				}
+				a {
+					color: inherit;
+					text-decoration: none;
+				}
+				.id {
+					width: 5em;
+				}
+
+				.summary {
+					min-width: 0;
+					flex: 1;
+					text-overflow: ellipsis;
+					overflow: hidden;
+					white-space: nowrap;
+				}
+			</style>
+			<a class="id" target="_blank" title="Go to ticket"></a>
+			<div class="close" title="Remove this ticket">&#10006;</div>
+			<div class="copy" title="Copy to clipboard">&#128203;</div>
+			<div class="summary"></div>
+			<ticket-status></ticket-status>
+		</template>
+		<template id="ticket-status">
+			<style>
+				slot {
+					display: block;
+					color: white;
+					width: 70px;
+					text-align: center;
+					padding: 2px 4px;
+					white-space: nowrap;
+					border-radius: 4px;
+				}
+			</style>
+			<div>
+				<slot></slot>
+			</div>
+		</template>
+
 		<main class="jira">
 			<nav>
 				<button class="new_tab">+</button>
@@ -26,7 +79,6 @@
 				<input type="submit" value="search" style="display:none;">
 			</form>
 		</footer>
-		<script src="popup.js"></script>
+		<script type="module" src="popup.mjs"></script>
 	</body>
 </html>
-

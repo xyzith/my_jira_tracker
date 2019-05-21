@@ -24,41 +24,11 @@ button {
 .jira {
 	margin-top: 1em;
 }
-.jira .ticket {
-	border-bottom: 1px dashed BurlyWood;
+
+.jira .list {
 	background-color: Beige;
-	padding: .2em .4em;
-	display: flex;
-}
-.jira .ticket > * {
-	margin: .2em;
 }
 
-.jira .ticket .status {
-	padding: .1em .5em;
-	color: white;
-	border-radius: .3em;
-}
-.jira .ticket details {
-	min-width: 0;
-	flex: 1;
-}
-.jira .ticket details p {
-	white-space: pre-wrap;
-}
-.jira .ticket .id {
-	flex-basis: 5em; 
-}
-.jira .ticket .copy,
-.jira .ticket .close {
-	cursor: pointer;
-}
-.jira .ticket summary {
-	white-space: nowrap;
-	cursor: pointer;
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
 body > footer nav {
 	display: inline-block;
 	padding: .5em;

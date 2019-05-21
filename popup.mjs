@@ -1,3 +1,5 @@
+import { TicketRow, TicketStatus } from './components.mjs';
+
 function getCurrentChromeTab() {
 	const queryInfo = {
 		active: true,
@@ -22,10 +24,11 @@ function sendMessage(tabId, data) {
 		chrome.tabs.sendMessage(tabId, data, r => resolve(r));
 	});
 }
-function save() {
-	const data = ticketList.map(t => t.export());
+async function save() {
+	const getData = ticketList.map(t => t.export());
+	const data = await Promise.all(getData);
 	document.querySelector('footer .btns .export').href = `data:text/plain;charset=UTF-8,${JSON.stringify(data)}`;
-	return new Promise((resolve, reject) => {
+	await new Promise((resolve, reject) => {
 		chrome.storage.local.set({data, lastActiveTab: currentTab.name}, () => resolve());
 	});
 }
@@ -179,13 +182,14 @@ class Tabs {
 		this.hook.call(this.tickets, 'delete', this.updateCouter.bind(this));
 		this.render();
 	}
+
 	get isActive() {
 		return currentTab === this;
 	}
 	get hook() { return hook }
 	createListFromArray(tickets) {
 		if(tickets) {
-			return new Map(tickets.map(t => [t.id, new Ticket(t)]));
+			return new Map(tickets.map(t => [t.id, new TicketRow(t)]));
 		}
 		return new Map();
 	}
@@ -198,24 +202,26 @@ class Tabs {
 		this.renderTicketsList();
 	}
 	export() {
-		const tickets = Array.from(this.tickets.values()).map((t) => {
+		const getData = Array.from(this.tickets.values()).map((t) => {
 			return t.export()
 		});
-		const {name} = this;
-		return {name, tickets};
+
+		return Promise.all(getData).then((tickets) => {
+			const {name} = this;
+			return {name, tickets};
+		});
 	}
 	buildJQLString() {
-		let str = Array.from(this.tickets.values()).reduce((jql, ticket) => {
-			if(!(filter.config.closed.group.indexOf(ticket.status) >= 0)) {
-				return `${jql}${ticket.sta.id},`;
-			}
-			return jql;
-		}, '');
-		str = `Key in(${str.replace(/,$/, '')})`;
-		return str;
+		const getData = Array.from(this.tickets.values()).map((ticket) => ticket.export());
+		return Promise.all(getData).then((data) => {
+			const jql = data.filter(({ status }) => filter.config.closed.group.indexOf(TicketStatus.formatClassName(status)) === -1)
+				.map(({ id }) => id).join(',');
+			return `Key in(${jql})`;
+		});
 	}
-	updateTickets() {
-		const url = encodeURI(`https://jira.tc-gaming.co/jira/issues/?jql=${this.buildJQLString()}`);
+	async updateTickets() {
+		const jql = await this.buildJQLString();
+		const url = encodeURI(`https://jira.tc-gaming.co/jira/issues/?jql=${jql}`);
 		xhr(url).then((x) => {
 			const parser = new DOMParser();
 			const doc = parser.parseFromString(x.response, 'text/html')
@@ -224,8 +230,11 @@ class Tabs {
 	}
 	parseTable(doc) {
 		const rows = doc.querySelectorAll('#issuetable .issuerow');
-		rows.forEach(this.updateTicket.bind(this));
-		!rows.length && console.error('Error on status update');
+		if (!rows.length) {
+			console.error('Error on status update');
+		} else {
+			rows.forEach(this.updateTicket.bind(this));
+		}
 		save();
 	}
 	updateTicket(row) {
@@ -233,8 +242,8 @@ class Tabs {
 		const summary = row.querySelector('.summary').textContent.trim();
 		const status = row.querySelector('.status').textContent.trim();
 		const ticket = this.tickets.get(id);
-		ticket.sta.status = status;
-		ticket.sta.summary = summary;
+		ticket.status = status;
+		ticket.summary = summary;
 	}
 	renderTicketsList() {
 		const el = document.querySelector('.jira .list');
@@ -242,7 +251,7 @@ class Tabs {
 			el.firstChild.remove();
 		}
 		this.tickets.forEach( ticket => {
-			el.appendChild(ticket.render());
+			el.appendChild(ticket);
 		});
 	}
 	updateName(name) {
@@ -310,124 +319,6 @@ class Tabs {
 	}
 }
 
-class Ticket {
-	static fromTab(pagetab) {
-		return this.parseInfoFromTab(pagetab).then((info) => new this(info));
-	}
-	static parseInfoFromTab(pagetab) {
-		const {title} = pagetab;
-		const url = pagetab.url.replace(/\?.*$/, '');
-		const id = url.match(/browse\/(\w+-\d+)(:?\?|$)/)[1];
-		const data = {title, url, id}
-		return new Promise((resolve, reject) => {
-			sendMessage(pagetab.id, {action: 'GET_TICKET_INFO'}).then(r => {
-				r.desc = r.desc.replace(/\n\t*(?=\n)/g, '\n').replace(/\n+/g, '\n');
-				resolve(Object.assign(data, r));
-			});
-		});
-	}
-	constructor(data) {
-		data = data || {}
-		const sta = Object.assign({}, data);
-
-		this.sta = this.hookAll.call(sta, () => {
-			const old = this.el;
-			this.render();
-			if(old && old.parentNode) {
-				old.parentNode.replaceChild(this.el, old);
-			}
-		});
-	}
-	get status() {
-		return this.sta.status.replace(/ /g, '').toLowerCase();
-	}
-
-	get hookAll() { return hookAll }
-	updateFromTab(pagetab) {
-		this.constructor.parseInfoFromTab(pagetab).then((info) => {
-			const {desc, status, title} = info
-			Object.assign(this.sta, { desc, status, title});
-		});
-	}
-	export() {
-		const {id} = this.sta;
-		const {url} = this.sta;
-		const {status} = this.sta;
-		const {title} = this.sta;
-		const {desc} = this.sta;
-
-		return {id, url, status, title, desc};
-	}
-
-	renderStatus() {
-		const status_el = document.createElement('div');
-		const wrapper = document.createElement('div');
-		status_el.className = 'status ' + this.status;
-		status_el.textContent = this.sta.status;
-		wrapper.appendChild(status_el);
-		return wrapper;
-	}
-
-	render() {
-		const item = document.createElement('div');
-		const del = document.createElement('span');
-		const copy = document.createElement('span');
-		const id = document.createElement('a');
-		const desc = document.createElement('p');
-		const title = document.createElement('summary');
-		const details = document.createElement('details');
-		id.className = 'id';
-		id.textContent = this.sta.id;
-		id.href = this.sta.url;
-		id.target = '_blank';
-		id.title = 'Go to ticket';
-		del.textContent = '\u2716'
-		del.className = 'close'
-		del.title = 'Remove this ticket'
-		copy.innerHTML = '&#128194';
-		copy.textContent = '\uD83D\uDCCB';
-		copy.className = 'copy'
-		copy.title = 'Copy to clipboard'
-		desc.className = 'desc';
-		desc.textContent = this.sta.desc;
-		title.className = 'title';
-		title.textContent = this.sta.title.replace(/^.*\]/, '').replace(/ - TC Gaming JIRA$/, '');
-		title.title = title.textContent;
-		details.appendChild(title);
-		details.appendChild(desc);
-		item.appendChild(id);
-		item.appendChild(del);
-		item.appendChild(copy);
-		item.appendChild(details);
-		item.appendChild(this.renderStatus());
-		item.classList.add('ticket');
-		if(!filter.isShow(this.status)) {
-			item.classList.add('hide');
-		}
-		del.addEventListener('click', () => {
-			lightbox.confirm(`Remove ${this.sta.id} ?`).then(() => currentTab.remove(this), () => null);
-		});
-		copy.addEventListener('click', () => {
-			const range = document.createRange();
-			const selection = window.getSelection();
-			const tmp = document.createElement('span');
-			tmp.textContent = id.textContent;
-			tmp.style.position = 'absolute';
-			tmp.style.opacirt = '0';
-
-			document.body.appendChild(tmp);
-			range.selectNode(tmp);
-			selection.removeAllRanges();
-			selection.addRange(range);
-			document.execCommand('copy');
-			tmp.remove();
-			selection.removeAllRanges();
-		});
-		this.el = item;
-		return item;
-	}
-}
-
 var ticketList; // global
 var currentTab;
 const lightbox = new LightBox();
@@ -473,7 +364,7 @@ getCurrentChromeTab().then(function(pagetab){
 	function renderAddBtn(tar, ticketId) {
 		const {tickets} = currentTab;
 		if(!tickets.has(ticketId)) {
-			btn = document.createElement('button');
+			const btn = document.createElement('button');
 			btn.textContent = 'Add this jira ticket.'
 			btn.addEventListener('click', addTicket);
 			tar.appendChild(btn);
