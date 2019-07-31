@@ -25,7 +25,8 @@ button {
 	margin-top: 1em;
 }
 
-.jira .list {
+tab-content {
+	display: block;
 	background-color: Beige;
 }
 

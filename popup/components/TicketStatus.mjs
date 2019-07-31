@@ -1,4 +1,4 @@
-import { statusConfig } from './config.mjs';
+import { statusConfig } from '../config.mjs';
 
 class TicketStatus extends HTMLElement {
 	static createCssRule(classes, color) {
@@ -50,7 +50,6 @@ class TicketStatus extends HTMLElement {
 		config.forEach(({ group, color }) => {
 			const rule = TicketStatus.createCssRule(group, color)
 			style.innerHTML += rule;
-
 //			XXX  CSSStyleSheet will be flushed once the element unmount. Browser bugs ?
 //			style.sheet.insertRule(rule);
 		});

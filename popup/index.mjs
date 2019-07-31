@@ -1,4 +1,4 @@
-import { TicketRow, TicketStatus } from './components.mjs';
+import { TicketRow, TicketStatus, TabContent } from './components/index.mjs';
 
 function getCurrentChromeTab() {
 	const queryInfo = {
@@ -24,13 +24,10 @@ function sendMessage(tabId, data) {
 		chrome.tabs.sendMessage(tabId, data, r => resolve(r));
 	});
 }
-async function save() {
-	const getData = ticketList.map(t => t.export());
-	const data = await Promise.all(getData);
+function save() {
+	const data = ticketList.map(t => t.export());
 	document.querySelector('footer .btns .export').href = `data:text/plain;charset=UTF-8,${JSON.stringify(data)}`;
-	await new Promise((resolve, reject) => {
-		chrome.storage.local.set({data, lastActiveTab: currentTab.name}, () => resolve());
-	});
+	chrome.storage.local.set({ data, lastActiveTab: currentTab.name }, () => resolve());
 }
 function load(key) {
 	return new Promise((resolve, reject) => {
@@ -75,9 +72,19 @@ function hookAll(action) {
 function selectTab(tab) {
 	if(currentTab !== tab) {
 		currentTab = tab;
-		ticketList.forEach((t) => t.updateActiveState());
-		currentTab.renderTicketsList();
-		currentTab.updateTickets();
+		const { tickets } = tab;
+		const content = document.querySelector('tab-content');
+		content.flush();
+		tickets.forEach( data => {
+			content.appendTicket(data);
+		});
+		content.update().then((foo) => {
+			content.export().then((data) => {
+				const { name } = currentTab;
+				console.log(data);
+			});
+		});
+
 	}
 }
 class LightBox {
@@ -173,92 +180,41 @@ class Filter {
 	}
 }
 class Tabs {
-	constructor(name, tickets) {
+	constructor(name, tickets = []) {
 		this.name = name;
-		this.tickets = this.createListFromArray(tickets);
-		this.hook('add', save);
-		this.hook('remove', save);
-		this.hook.call(this.tickets, 'set', this.updateCouter.bind(this));
-		this.hook.call(this.tickets, 'delete', this.updateCouter.bind(this));
 		this.render();
+
+		this.tickets = tickets;
 	}
 
 	get isActive() {
 		return currentTab === this;
 	}
-	get hook() { return hook }
-	createListFromArray(tickets) {
-		if(tickets) {
-			return new Map(tickets.map(t => [t.id, new TicketRow(t)]));
-		}
-		return new Map();
-	}
-	add(ticket) {
-		this.tickets.set(ticket.sta.id, ticket);
-		this.renderTicketsList();
-	}
-	remove(ticket) {
-		this.tickets.delete(ticket.sta.id);
-		this.renderTicketsList();
-	}
-	export() {
-		const getData = Array.from(this.tickets.values()).map((t) => {
-			return t.export()
-		});
 
-		return Promise.all(getData).then((tickets) => {
-			const {name} = this;
-			return {name, tickets};
-		});
+	hasTicket(id) {
+		const content = document.querySelector('tab-content');
+		return !!content.get(id);
 	}
-	buildJQLString() {
-		const getData = Array.from(this.tickets.values()).map((ticket) => ticket.export());
-		return Promise.all(getData).then((data) => {
-			const jql = data.filter(({ status }) => filter.config.closed.group.indexOf(TicketStatus.formatClassName(status)) === -1)
-				.map(({ id }) => id).join(',');
-			return `Key in(${jql})`;
-		});
-	}
-	async updateTickets() {
-		const jql = await this.buildJQLString();
-		const url = encodeURI(`https://jira.tc-gaming.co/jira/issues/?jql=${jql}`);
-		xhr(url).then((x) => {
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(x.response, 'text/html')
-			this.parseTable(doc);
-		});
-	}
-	parseTable(doc) {
-		const rows = doc.querySelectorAll('#issuetable .issuerow');
-		if (!rows.length) {
-			console.error('Error on status update');
-		} else {
-			rows.forEach(this.updateTicket.bind(this));
-		}
-		save();
-	}
-	updateTicket(row) {
-		const id = row.querySelector('.issuekey').textContent.trim();
-		const summary = row.querySelector('.summary').textContent.trim();
-		const status = row.querySelector('.status').textContent.trim();
-		const ticket = this.tickets.get(id);
-		ticket.status = status;
-		ticket.summary = summary;
+
+	export() {
+		const { name, tickets } = this;
+		return { name, tickets };
 	}
 	renderTicketsList() {
-		const el = document.querySelector('.jira .list');
-		while(el.firstChild) {
-			el.firstChild.remove();
-		}
-		this.tickets.forEach( ticket => {
-			el.appendChild(ticket);
+		const { tickets } = this;
+		const content = document.querySelector('tab-content');
+		content.flush();
+		tickets.forEach( data => {
+			content.appendTicket(data);
 		});
+		content.update();
 	}
 	updateName(name) {
 		this.name = name;
 		save();
 	}
 	destroy() {
+		// FIXME
 		lightbox.confirm(`Remove ${this.name} ?`).then((ok) => {
 			const idx = ticketList.indexOf(this);
 			ticketList.splice(idx, 1);
@@ -272,6 +228,7 @@ class Tabs {
 	updateActiveState() {
 		this.el.classList.toggle('active', this.isActive)
 	}
+	// FIXME typo
 	updateCouter() {
 		if(this.el) {
 			const counter = this.el.querySelector('.counter');
@@ -314,7 +271,7 @@ class Tabs {
 			}
 		});
 		this.el = container;
-		this.updateCouter();
+//		this.updateCouter();
 		dom.appendChild(container);
 	}
 }
@@ -362,8 +319,7 @@ getCurrentChromeTab().then(function(pagetab){
 		});
 	}
 	function renderAddBtn(tar, ticketId) {
-		const {tickets} = currentTab;
-		if(!tickets.has(ticketId)) {
+		if(!currentTab.hasTicket(ticketId)) {
 			const btn = document.createElement('button');
 			btn.textContent = 'Add this jira ticket.'
 			btn.addEventListener('click', addTicket);
@@ -374,8 +330,9 @@ getCurrentChromeTab().then(function(pagetab){
 	}
 	function setupAddBtn() {
 		const {url} = pagetab;
-		const ticketId = url.match(/browse\/(\w+-\d+)(:?\?|$)/)[1];
-		if(ticketId) {
+		const match = url.match(/browse\/(\w+-\d+)(:?\?|$)/);
+		if(match) {
+			const ticketId = match[1];
 			sendMessage(pagetab.id, {action: 'IS_READY'}).then(r => {
 				if(r) {
 					renderAddBtn(document.querySelector('body > footer .btns'), ticketId);

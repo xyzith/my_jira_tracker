@@ -1,14 +1,12 @@
 class TicketRow extends HTMLElement {
-	constructor({ id, summary, status, title }) {
+	constructor() {
 		super();
 		this.initShadow();
 		this.connected = new Promise((resolve) => {
 			this.resolveConnectPromise = () => resolve();
 		});
-		this.id = id;
-		this.summary = summary || title;
-		this.status = status;
 	}
+
 	connectedCallback() {
 		this.resolveConnectPromise();
 	}

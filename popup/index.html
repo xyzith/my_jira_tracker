@@ -2,11 +2,10 @@
 <html>
 	<head>
 		<title>FFN Jira Tracker</title>
-		<link rel="stylesheet" href="popup.css">
-		<link rel="modulepreload" href="TicketStatus.mjs">
-		<link rel="modulepreload" href="TicketRow.mjs">
-		<link rel="modulepreload" href="config.mjs">
-		<link rel="modulepreload" href="components.mjs">
+		<link rel="stylesheet" href="index.css">
+		<link rel="modulepreload" href="components/TicketStatus.mjs">
+		<link rel="modulepreload" href="components/TicketRow.mjs">
+		<link rel="modulepreload" href="components/TabContent.mjs">
 	</head>
 	<body>
 		<template id="ticket-row">
@@ -57,13 +56,15 @@
 				<slot></slot>
 			</div>
 		</template>
+		<template id="tab-content">
+			<section class="list"></section>
+		</template>
 
 		<main class="jira">
 			<nav>
 				<button class="new_tab">+</button>
 			</nav>
-			<section class="list">
-			</section>
+			<tab-content></tab-content>
 		</main>
 		<footer>
 			<div class="btns">
@@ -79,6 +80,6 @@
 				<input type="submit" value="search" style="display:none;">
 			</form>
 		</footer>
-		<script type="module" src="popup.mjs"></script>
+		<script type="module" src="index.mjs"></script>
 	</body>
 </html>
