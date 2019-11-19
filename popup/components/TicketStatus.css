@@ -1,0 +1,15 @@
+slot {
+	display: block;
+	color: white;
+	width: 70px;
+	text-align: center;
+	padding: 2px 4px;
+	white-space: nowrap;
+	border-radius: 4px;
+}
+
+.open { background-color: DodgerBlue; }
+.todo { background-color: ForestGreen; }
+.wip { background-color: YellowGreen; }
+.resolved { background-color: GoldenRod; }
+.closed { background-color: DarkGray; }

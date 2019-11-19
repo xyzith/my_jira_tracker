@@ -1,4 +1,6 @@
-import { TicketRow, TicketStatus, TabContent } from './components/index.mjs';
+import { TicketRow, TicketStatus, TabContent, TabLabel } from './components/index.mjs';
+import storage from './storage/storage.mjs';
+import './storage/mutations.mjs';
 
 function getCurrentChromeTab() {
 	const queryInfo = {
@@ -11,6 +13,8 @@ function getCurrentChromeTab() {
 		});
 	});
 }
+
+/*
 function xhr(url) {
 	return new Promise((resolve, reject) => {
 		const x = new XMLHttpRequest();
@@ -87,6 +91,9 @@ function selectTab(tab) {
 
 	}
 }
+*/
+
+// TODO new components
 class LightBox {
 	constructor() {
 		this.el = this.render();
@@ -127,6 +134,7 @@ class LightBox {
 		return lightbox;
 	}
 }
+/*
 class Filter {
 	constructor(config) {
 		this.config = config;
@@ -179,6 +187,8 @@ class Filter {
 		Object.keys(this.config).forEach(render);
 	}
 }
+*/
+/*
 class Tabs {
 	constructor(name, tickets = []) {
 		this.name = name;
@@ -279,6 +289,7 @@ class Tabs {
 var ticketList; // global
 var currentTab;
 const lightbox = new LightBox();
+/*
 const filter = new Filter({
 	open: {
 		group: ['open'],
@@ -306,7 +317,19 @@ const filter = new Filter({
 		show: false
 	}
 });
+*/
+/*
+function init() {
+	const getPageTab = getCurrentChromeTab();
+	const syncStorage = storage.syncData();
+	return Promise.all([getPageTab, syncStorage]).then(([pagetab, data]) => {
+		console.log(pagetab, data);
+	});
+}
+init();
+*/
 
+function foo() {
 getCurrentChromeTab().then(function(pagetab){
 	function initTicketList() {
 		ticketList = [];
@@ -360,12 +383,24 @@ getCurrentChromeTab().then(function(pagetab){
 			reader.readAsText(file);
 		});
 	}
-	load('data').then((list) => {
-		if(list.data && list.data.length) {
-			ticketList = list.data.map(t => new Tabs(t.name, t.tickets));
+
+/*
+	storage.load('tabs').then(({ tabs }) => {
+		
+/*
+		let foo;
+		if(tabs && tabs.length) {
+			
+//			ticketList = list.data.map(t => new Tabs(t.name, t.tickets));
+			foo = tabs.map(t => new TabLabel(t));
 		} else {
-			ticketList = initTicketList();
+//			ticketList = initTicketList();
 		}
+
+		const nav = document.querySelector('nav');
+		foo.forEach((bar) => {
+			nav.appendChild(bar);
+		});
 		load('lastActiveTab').then((data) => {
 			const last = ticketList.filter((t) => t.name === data.lastActiveTab);
 			selectTab(last[0] || ticketList[0]);
@@ -373,4 +408,6 @@ getCurrentChromeTab().then(function(pagetab){
 		bindEvents();
 		setupAddBtn();
 	});
+*/
 });
+}

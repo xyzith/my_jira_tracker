@@ -1,3 +1,7 @@
+import storage from '../storage/storage.mjs';
+import { statusMap } from '../config.mjs';
+import TicketStatus from './TicketStatus.mjs';
+
 class TicketRow extends HTMLElement {
 	constructor() {
 		super();
@@ -42,30 +46,54 @@ class TicketRow extends HTMLElement {
 		return el.textContent;
 	}
 
+	get statusGroup() {
+		const { shadowRoot } = this;
+		const el = shadowRoot.querySelector('ticket-status');
+		return el.statusGroup;
+	}
+
+	get status() {
+		const { shadowRoot } = this;
+		const el = shadowRoot.querySelector('ticket-status');
+		return el.status;
+	}
+
 	set status(status) {
 		this.connected.then(() => {
 			const { shadowRoot } = this;
 			const el = shadowRoot.querySelector('ticket-status');
 			el.status = status || '';
+			this.setVisibility();
+			storage.watch('filter', this.setVisibility.bind(this));
 		});
 	}
-	get status() {
-		return this.connected.then(() => {
-			const { shadowRoot } = this;
-			const el = shadowRoot.querySelector('ticket-status');
-			return el.status;
-		});
+	
+	setVisibility() {
+		const { filter } = storage.getData();
+
+		if (filter.has(this.statusGroup)) {
+			this.show();
+		} else {
+			this.hide();
+		}
+	}
+
+	getStatus() {
+		const { shadowRoot } = this;
+		const el = shadowRoot.querySelector('ticket-status');
+		return el.status;
 	}
 
 	initCloseBtn() {
 		const { shadowRoot } = this;
 	}
 
-	async export() {
-		await this.connected;
-		const { id, summary } = this;
-		const status = await this.status;
-		return { id, status, summary };
+	hide() {
+		this.classList.add('hide');
+	}
+
+	show() {
+		this.classList.remove('hide');
 	}
 }
 

@@ -1,0 +1,46 @@
+.content div {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	margin: 4px;
+}
+
+.open {
+	border: 2px solid DodgerBlue;
+}
+.open.actived {
+	background-color: DodgerBlue;
+}
+
+.todo {
+	border: 2px solid ForestGreen;
+}
+
+.todo.actived {
+	background-color: ForestGreen;
+}
+
+.wip {
+	border: 2px solid YellowGreen;
+}
+
+.wip.actived {
+	background-color: YellowGreen;
+}
+
+.resolved {
+	border: 2px solid GoldenRod;
+}
+
+.resolved.actived {
+	background-color: GoldenRod;
+}
+
+.closed {
+	border: 2px solid DarkGray;
+}
+
+.closed.actived {
+	background-color: DarkGray;
+}

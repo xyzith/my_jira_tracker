@@ -1,22 +1,6 @@
-export const statusConfig = {
-	open: {
-		group: ['open'],
-		color: 'DodgerBlue',
-	},
-	todo: {
-		group: ['to-do'],
-		color: 'ForestGreen',
-	},
-	wip: {
-		group: ['in-progress', 'wip'],
-		color: 'YellowGreen',
-	},
-	resolved: {
-		group: ['resolved', 'scheduled'],
-		color: 'GoldenRod',
-	},
-	closed: {
-		group: ['closed', 'done'],
-		color: 'DarkGray',
-	}
-};
+export const statusMap = new Map();
+statusMap.set(['Open'], { type: 'open' });
+statusMap.set(['To Do'], { type: 'todo' });
+statusMap.set(['In Progress'], { type: 'wip' });
+statusMap.set(['Resolved', 'Scheduled', 'In Review'], { type: 'resolved' });
+statusMap.set(['Closed', 'Done'], { type: 'closed' });

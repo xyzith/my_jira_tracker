@@ -1,15 +1,6 @@
-import { statusConfig } from '../config.mjs';
+import { statusMap } from '../config.mjs';
 
 class TicketStatus extends HTMLElement {
-	static createCssRule(classes, color) {
-		const classString = classes.map((className) => `.${className}`).join(', ');
-		const colorString =  `background-color: ${color};`;
-		return `${classString} { ${colorString} }`
-	}
-	static formatClassName(name) {
-		return name.replace(/ /g, '-').toLowerCase();
-	}
-
 	constructor() {
 		super();
 		this.initShadow();
@@ -19,21 +10,29 @@ class TicketStatus extends HTMLElement {
 		const tmpl = document.getElementById('ticket-status');
 		const shadowRoot = this.attachShadow({ mode: 'open'});
 		shadowRoot.appendChild(tmpl.content.cloneNode(true));
-		this.applyCss();
 	}
 
-
 	set status(sta) {
+		console.log(sta);
 		const { shadowRoot } = this;
 		this.textContent = sta
 		this.setAttribute('status', sta);
 
 		const div = shadowRoot.querySelector('div');
-		div.className = TicketStatus.formatClassName(sta);
+		div.className = this.statusGroup;
 	}
 
 	get status() {
 		return this.getAttribute('status');
+	}
+
+	get statusGroup() {
+		const { status } = this;
+		console.log(...statusMap.keys(), status);
+		const targetGroup = [...statusMap.keys()].find((group) => group.indexOf(status) !== -1);
+		const { type } = statusMap.get(targetGroup);
+		return type;
+
 	}
 
 	createStyleSheet() {
@@ -41,18 +40,6 @@ class TicketStatus extends HTMLElement {
 		const styleEl = document.createElement('style');
 		shadowRoot.appendChild(styleEl);
 		return styleEl;
-	}
-
-
-	applyCss() {
-		const style = this.createStyleSheet();
-		const config = Object.values(statusConfig);
-		config.forEach(({ group, color }) => {
-			const rule = TicketStatus.createCssRule(group, color)
-			style.innerHTML += rule;
-//			XXX  CSSStyleSheet will be flushed once the element unmount. Browser bugs ?
-//			style.sheet.insertRule(rule);
-		});
 	}
 }
 

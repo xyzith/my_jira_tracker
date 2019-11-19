@@ -3,70 +3,56 @@
 	<head>
 		<title>FFN Jira Tracker</title>
 		<link rel="stylesheet" href="index.css">
-		<link rel="modulepreload" href="components/TicketStatus.mjs">
-		<link rel="modulepreload" href="components/TicketRow.mjs">
-		<link rel="modulepreload" href="components/TabContent.mjs">
 	</head>
 	<body>
 		<template id="ticket-row">
-			<style>
-				:host {
-					display: flex;
-					padding: 4px 0;
-					border-bottom: 1px dashed;
-				}
-				:host > * {
-					padding: 1px 4px;
-				}
-				a {
-					color: inherit;
-					text-decoration: none;
-				}
-				.id {
-					width: 5em;
-				}
-
-				.summary {
-					min-width: 0;
-					flex: 1;
-					text-overflow: ellipsis;
-					overflow: hidden;
-					white-space: nowrap;
-				}
-			</style>
+			<link rel="stylesheet" href="components/TicketRow.css">
 			<a class="id" target="_blank" title="Go to ticket"></a>
 			<div class="close" title="Remove this ticket">&#10006;</div>
 			<div class="copy" title="Copy to clipboard">&#128203;</div>
 			<div class="summary"></div>
 			<ticket-status></ticket-status>
 		</template>
+
 		<template id="ticket-status">
-			<style>
-				slot {
-					display: block;
-					color: white;
-					width: 70px;
-					text-align: center;
-					padding: 2px 4px;
-					white-space: nowrap;
-					border-radius: 4px;
-				}
-			</style>
+			<link rel="stylesheet" href="components/TicketStatus.css">
 			<div>
 				<slot></slot>
 			</div>
 		</template>
-		<template id="tab-content">
-			<section class="list"></section>
+
+		<template id="tab-label">
+			<link rel="stylesheet" href="components/TabLabel.css">
+			<div class="tab-label">
+				<input class="name" disabled="" size="2">
+				<div class="counter"></div>
+			</div>
 		</template>
 
+		<template id="ticket-filter">
+			<link rel="stylesheet" href="components/Filter.css">
+			<div class="content"></div>
+		</template>
+
+
+
+
+
+
+
+
 		<main class="jira">
+			<tab-nav></tab-nav>
+			<!--
+			
 			<nav>
 				<button class="new_tab">+</button>
 			</nav>
+			-->
 			<tab-content></tab-content>
 		</main>
 		<footer>
+			<ticket-filter></ticket-filter>
 			<div class="btns">
 				<nav class="filter"></nav>
 				<a class="export" download="jira_list.txt">Export</a>

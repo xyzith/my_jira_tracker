@@ -1,0 +1,64 @@
+.tab-label{
+	display: inline-block;
+	position: relative;
+	background-color: Beige;
+	padding: .3em .5em;
+	margin: 0 .5em;
+	cursor: pointer;
+	filter: brightness(.9);
+}
+
+.tab-label .name {
+	color: Maroon;
+	display: inline-block;
+	width: auto;
+	border: 0px none transparent;
+	font-size: 1.2em;
+}
+
+.tab-label:before {
+	content: '';
+	border-bottom: 2.1em solid Beige;
+	border-left: 1em solid transparent;
+	position: absolute;
+	top: 0;
+	left: -1em;
+}
+
+.tab-label.active{
+	filter: none;
+}
+
+.tab-label .name:disabled {
+	background-color: transparent;
+	cursor: pointer;
+}
+
+.tab-label .counter {
+	font-size: .5em;
+	top: -.5em;
+	right: -.75em;
+	text-align: center;
+	font-size: 1em;
+}
+
+.tab-label .counter:after,
+.tab-label .counter {
+	position: absolute;
+	width: 1.5em;
+	line-height: 1.5em;
+	border-radius: 50%;
+	background: Maroon;
+	color: white;
+	z-index: 1;
+}
+	
+.tab-label .counter:after {
+	pointer-events: none;
+	z-index: 10;
+	left: 0;
+}
+
+.tab-label .counter:hover:after {
+	content: '\2716';
+}

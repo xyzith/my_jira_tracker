@@ -1,80 +1,77 @@
+import storage from '../storage/storage.mjs';
+
 class TabLabel extends HTMLElement {
-	constructor(name, tickets) {
+	constructor() {
 		super();
-		this.name = name;
+		this.initShadow();
+		this.connected = new Promise((resolve) => {
+			this.resolveConnectPromise = () => resolve();
+		});
 	}
 
-	get isActive() {
-		return currentTab === this;
+	initShadow() {
+		const tmpl = document.getElementById('tab-label');
+		const shadowRoot = this.attachShadow({ mode: 'open'});
+		shadowRoot.appendChild(tmpl.content.cloneNode(true));
+		shadowRoot.querySelector('.tab-label').addEventListener('click', this.selectTab.bind(this));
+		shadowRoot.querySelector('.counter').addEventListener('click', this.remove.bind(this));
 	}
-	destroy() {
-		// FIXME
-		lightbox.confirm(`Remove ${this.name} ?`).then((ok) => {
-			const idx = ticketList.indexOf(this);
-			ticketList.splice(idx, 1);
-			this.el.remove();
-			save()
-			if(currentTab === this) {
-				selectTab(ticketList[0]);
-			}
-		}, () => null);
-	}
-	updateActiveState() {
-		this.el.classList.toggle('active', this.isActive)
-	}
-	// FIXME typo
-	updateCouter() {
-		if(this.el) {
-			const counter = this.el.querySelector('.counter');
-			const count = Array.from(this.tickets.values()).filter((t) => filter.isShow(t.status)).length;
-			counter.textContent = count > 99 ? '\u221E' : count;
+
+	setTabStat() {
+		const { activeTabId } = storage.getData();
+		const { tabId } = this;
+		if (activeTabId === tabId) {
+			this.active();
+		} else {
+			this.inactive();
 		}
 	}
-	updateName(name) {
-		this.name = name;
-	//	save();
+
+	active() {
+		const { shadowRoot } = this;
+		shadowRoot.querySelector('.tab-label').classList.add('active');
 	}
 
-	render() {
-		const dom = document.querySelector('main > nav');
-		const container = document.createElement('div');
-		const name = document.createElement('input');
-		const counter = document.createElement('div');
-		const saveAndUpdate = (e) => {
-			name.size = countSize()
-			this.name = e.target.value;
-			e.target.disabled = true;
-			save();
-		}
-		const countSize = () => Math.max(this.name.length - 3, 1);
-		container.className = 'tab';
-		counter.className = 'counter';
-		name.className = 'name';
-		name.disabled = true;
-		name.size = countSize();
-		name.value = this.name;
-		container.appendChild(name);
-		container.appendChild(counter);
-		name.addEventListener('input', (e) => (name.size = countSize()));
-		name.addEventListener('change', saveAndUpdate);
-		name.addEventListener('blur', saveAndUpdate);
+	inactive() {
+		const { shadowRoot } = this;
+		shadowRoot.querySelector('.tab-label').classList.remove('active');
+	}
 
-		counter.addEventListener('click', this.destroy.bind(this));
-		container.addEventListener('dblclick', (e) => {
-			name.disabled = false;
-			name.focus();
-		});
-		container.addEventListener('click', (e) => {
-			if(e.target != counter) {
-				selectTab(this);
-			}
-		});
-		this.el = container;
-//		this.updateCouter();
-		dom.appendChild(container);
+	applyData({ name, tickets = [], id }) {
+		this.name = name;
+		this.tabId = id;
+		this.size = tickets.length;
+		this.setTabStat();
+	}
+
+	set name(name) {
+		const { shadowRoot } = this;
+		const el = shadowRoot.querySelector('.name');
+		el.value = name;
+	}
+
+	get name() {
+		const { shadowRoot } = this;
+		const el = shadowRoot.querySelector('.name');
+		return el.value;
+	}
+
+	set size(size) {
+		const { shadowRoot } = this;
+		const el = shadowRoot.querySelector('.counter');
+		el.textContent = size;
+	}
+	dropTab(e) {
+		e.stopPropagation();
+		// TODO remove
+	}
+
+	selectTab() {
+		const { tabId } = this;
+		storage.save('activeTabId', tabId);
 	}
 }
 
-window.customElements.define('tab-labrel', TabLabel);
+window.customElements.define('tab-label', TabLabel);
 
 export default TabLabel;
