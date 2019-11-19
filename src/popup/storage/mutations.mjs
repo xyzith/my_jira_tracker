@@ -1,5 +1,4 @@
 import storage from './storage.mjs';
-
 storage.watch('tabs', updateTicketList);
 storage.watch('activeTabId', updateTicketList);
 
