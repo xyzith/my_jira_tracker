@@ -4,7 +4,7 @@ import { sleep } from '../utils.mjs';
 export default new class {
 	constructor() {
 		this.watched = {};
-		this[Symbol.for('local-data')] = new Proxy({}, {
+		this[Symbol.for('local-data')] = new Proxy(initValue, {
 			set: (db, key, value) => {
 				const origValue = db[key];
 				if (origValue !== value) {
@@ -14,9 +14,6 @@ export default new class {
 				return true;
 			},
 		});
-		this.setData(initValue);
-
-		//XXX
 		this.syncData();
 	}
 

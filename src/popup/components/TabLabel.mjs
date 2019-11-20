@@ -13,14 +13,14 @@ class TabLabel extends HTMLElement {
 		const tmpl = document.getElementById('tab-label');
 		const shadowRoot = this.attachShadow({ mode: 'open'});
 		shadowRoot.appendChild(tmpl.content.cloneNode(true));
-		shadowRoot.querySelector('.tab-label').addEventListener('click', this.selectTab.bind(this));
-		shadowRoot.querySelector('.counter').addEventListener('click', this.remove.bind(this));
+		shadowRoot.querySelector('.tab-label').addEventListener('click', this.handleClickTab.bind(this));
+		shadowRoot.querySelector('.counter').addEventListener('click', this.dropTab.bind(this));
+		shadowRoot.querySelector('input').addEventListener('blur', this.saveName.bind(this));
 	}
 
 	setTabStat() {
-		const { activeTabId } = storage.getData();
-		const { tabId } = this;
-		if (activeTabId === tabId) {
+		const { actived } = this;
+		if (actived) {
 			this.active();
 		} else {
 			this.inactive();
@@ -61,9 +61,50 @@ class TabLabel extends HTMLElement {
 		const el = shadowRoot.querySelector('.counter');
 		el.textContent = size;
 	}
+
+	get actived() {
+		const { activeTabId } = storage.getData();
+		const { tabId } = this;
+		return activeTabId === tabId;
+	}
+
+	get inputEl() {
+		const { shadowRoot } = this;
+		return shadowRoot.querySelector('input');
+	}
+
 	dropTab(e) {
 		e.stopPropagation();
-		// TODO remove
+		const { tabId } = this;
+		const { tabs } = storage.getData();
+		const updatedTabs = tabs.filter(({ id }) => id !== tabId);
+		storage.save('tabs', updatedTabs);
+		// TODO confirm
+	}
+
+	handleClickTab() {
+		const { actived } = this;
+		if (actived) {
+			this.enableInput();
+		} else {
+			const { tabId } = this;
+			storage.save('activeTabId', tabId);
+		}
+	}
+
+	enableInput() {
+		const { inputEl } = this;
+		inputEl.disabled = false;
+	}
+
+	saveName() {
+		const { inputEl, tabId } = this;
+		const { value } = inputEl;
+		const { tabs } = storage.getData();
+		const traget = tabs.find(({ id }) => tabId === id);
+		traget.name = value;
+		storage.save('tabs', tabs);
+		inputEl.disabled = true;
 	}
 
 	selectTab() {
@@ -73,5 +114,4 @@ class TabLabel extends HTMLElement {
 }
 
 window.customElements.define('tab-label', TabLabel);
-
 export default TabLabel;

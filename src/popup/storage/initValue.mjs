@@ -2,7 +2,7 @@ export default {
 	tabs: [{
 		id: 0,
 		name: 'Default',
-		ticketets: [],
+		tickets: [],
 	}],
 	activeTabId: 0,
 	ticketList: [],

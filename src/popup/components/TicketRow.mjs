@@ -17,7 +17,6 @@ class TicketRow extends HTMLElement {
 		const tmpl = document.getElementById('ticket-row');
 		const shadowRoot = this.attachShadow({ mode: 'open'});
 		shadowRoot.appendChild(tmpl.content.cloneNode(true));
-		this.initCloseBtn();
 	}
 	set id(id) {
 		const { shadowRoot } = this;
@@ -80,10 +79,6 @@ class TicketRow extends HTMLElement {
 		const { shadowRoot } = this;
 		const el = shadowRoot.querySelector('ticket-status');
 		return el.status;
-	}
-
-	initCloseBtn() {
-//		const { shadowRoot } = this;
 	}
 
 	hide() {

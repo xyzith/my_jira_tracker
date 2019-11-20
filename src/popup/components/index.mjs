@@ -4,3 +4,4 @@ export { default as TabContent } from './TabContent.mjs';
 export { default as TabLabel } from './TabLabel.mjs';
 export { default as TabNav } from './TabNav.mjs';
 export { default as Filter } from './Filter.mjs';
+export { default as AddButton } from './AddButton.mjs';

@@ -43,6 +43,7 @@ class TabContent extends HTMLElement {
 		this.appendChild(ticket);
 		return ticket.connected;
 	}
+	/*
 	async getJql() {
 		const { activedTab } = this;
 		const { jql } = activedTab;
@@ -57,16 +58,18 @@ class TabContent extends HTMLElement {
 
 		return `Key in(${query})`;
 	}
+	*/
 
 	async update() {
-		const jql = await this.getJql();
-		const url = encodeURI(`https://jira.tc-gaming.co/jira/issues/?jql=${jql}`);
+		const { search } = this.activedTab || {};
+		if (!search) { return; }
+
+		const url = encodeURI(`https://jira.tc-gaming.co/jira/issues/${search}`);
 		await xhr(url).then((x) => {
 			const parser = new DOMParser();
 			const doc = parser.parseFromString(x.response, 'text/html');
 			const data = this.parseTable(doc);
-			const updatedList = this.updateTickets(data);
-			this.saveTab(updatedList);
+			this.saveTab(data);
 		});
 	}
 
@@ -88,16 +91,6 @@ class TabContent extends HTMLElement {
 		return Array.prototype.find.call(children, (ticket) => {
 			return ticket.id === id;
 		});
-	}
-
-	updateTickets(data) {
-		const { ticketList } = storage.getData();
-		data.forEach(({ id, summary, status, jql = '' }) => {
-			const target = ticketList.find((ticket) => ticket.id === id);
-			Object.assign(target, { summary, status, jql });
-		});
-
-		return ticketList;
 	}
 }
 

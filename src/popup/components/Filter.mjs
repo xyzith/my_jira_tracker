@@ -1,11 +1,11 @@
 import storage from '../storage/storage.mjs';
 import { statusMap } from '../config.mjs';
-
 class Filter extends HTMLElement {
 	constructor() {
 		super();
 		this.initShadow();
 		storage.watch('filter', this.renderDots.bind(this));
+		this.renderDots();
 	}
 
 	get content() {

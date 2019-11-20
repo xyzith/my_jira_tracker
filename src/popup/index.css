@@ -1,5 +1,6 @@
 body {
 	margin: 0;
+	padding: 0 0.4em;
 	width: 470px;
 	color: Maroon;
 }
@@ -10,7 +11,7 @@ a {
 }
 
 input {
-	width: 440px;
+	width: 100%;
 	box-sizing: border-box;
 }
 
@@ -34,38 +35,28 @@ body > footer nav {
 	display: inline-block;
 	padding: .5em;
 }
+footer ticket-filter {
+	display: block;
+	margin-top: .8em;
+}
+footer .btns, footer form  {
+	margin: 0.4em 0;
+}
+footer form  {
+	padding: 0.2em;
+}
+
 footer .btns > * {
 	margin: 0.2em;
 }
-.filter button {
-	display: inline-block;
-	width: 1em;
-	height: 1em;
-	box-sizing: border-box;
-	border-width: .2em;
-	border-style: solid;
-	border-radius: 50%;
-	padding: 0;
-	margin: 0 .1em;
-}
-
-.filter button.inactive {
-	background-color: transparent;
-}
 
 .hide {
-	display: none !important;
+	display: none;
 }
+
 tab-nav {
 	padding-left: .5em;
 }
-/*
-.jira > nav .new_tab{
-	position: absolute;
-	right: .5em;
-	top: .5em;
-}
-*/
 
 .import span {
 	cursor: pointer;
@@ -75,42 +66,4 @@ tab-nav {
 	visibility: hidden;
 	position: absolute;
 	pointer-events: none;
-}
-
-.lightbox {
-	width: 100%;
-	height: 100%;
-	position: fixed;
-	background: rgba(0, 0, 0, .5);
-	top: 0;
-	left: 0;
-	z-index: 100;
-}
-
-.lightbox {
-	width: 100%;
-	height: 100%;
-	position: fixed;
-	background: rgba(0, 0, 0, .5);
-	top: 0;
-	left: 0;
-	z-index: 100;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
-
-.lightbox .content{
-	border-radius: .4em;
-	background-color: Beige;
-	padding: .5em;
-	font-size: 1.5em;
-	text-align: center;
-	min-height: 0;
-}
-.lightbox .content button{
-	border: 1px solid Maroon;
-	padding: .2em;
-	margin: .2em
 }

@@ -7,14 +7,6 @@ export function xhr(url) {
 	});
 }
 
-export function generateTabID(tabs) {
-	const ids = tabs.map(({ id }) => id);
-	const newId = Math.floor(Math.random() * 100000);
-	if(ids.indexOf(newId) === -1) {
-		return newId;
-	}
-	return generateTabID(tabs);
-}
 /*
 export function loadKey(key) {
 	return new Promise((resolve, reject) => {

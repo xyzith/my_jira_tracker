@@ -1,0 +1,13 @@
+.hide {
+	display: none;
+}
+
+button {
+	border: 0 none transparent;
+	background-image: none;
+	background-color: Maroon;
+	cursor: pointer;
+	color: white;
+	padding: .2em .4em;
+	border-radius: .4em;
+}

@@ -1,4 +1,4 @@
-.tab-label{
+.tab-label {
 	display: inline-block;
 	position: relative;
 	background-color: Beige;
@@ -6,12 +6,13 @@
 	margin: 0 .5em;
 	cursor: pointer;
 	filter: brightness(.9);
+	width: 6em;
 }
 
 .tab-label .name {
 	color: Maroon;
 	display: inline-block;
-	width: auto;
+	width: 80%;
 	border: 0px none transparent;
 	font-size: 1.2em;
 }

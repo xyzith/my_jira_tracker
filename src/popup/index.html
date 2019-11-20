@@ -8,8 +8,6 @@
 		<template id="ticket-row">
 			<link rel="stylesheet" href="components/TicketRow.css">
 			<a class="id" target="_blank" title="Go to ticket"></a>
-			<div class="close" title="Remove this ticket">&#10006;</div>
-			<div class="copy" title="Copy to clipboard">&#128203;</div>
 			<div class="summary"></div>
 			<ticket-status></ticket-status>
 		</template>
@@ -34,32 +32,24 @@
 			<div class="content"></div>
 		</template>
 
-
-
-
-
-
-
+		<template id="add-button">
+			<link rel="stylesheet" href="components/AddButton.css">
+			<button>Add Filter</button>
+		</template>
 
 		<main class="jira">
 			<tab-nav></tab-nav>
-			<!--
-			
-			<nav>
-				<button class="new_tab">+</button>
-			</nav>
-			-->
 			<tab-content></tab-content>
 		</main>
 		<footer>
 			<ticket-filter></ticket-filter>
 			<div class="btns">
-				<nav class="filter"></nav>
 				<a class="export" download="jira_list.txt">Export</a>
 				<span class="import">
 					<span>Import</span>
 					<input type="file">
 				</span>
+				<add-button class="hide"></add-button>
 			</div>
 			<form action="https://jira.tc-gaming.co/jira/secure/QuickSearch.jspa" target="_blank">
 				<input type="text" name="searchString" placeholder="Search">
