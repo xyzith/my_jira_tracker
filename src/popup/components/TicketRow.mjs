@@ -17,7 +17,28 @@ class TicketRow extends HTMLElement {
 		const tmpl = document.getElementById('ticket-row');
 		const shadowRoot = this.attachShadow({ mode: 'open'});
 		shadowRoot.appendChild(tmpl.content.cloneNode(true));
+		this.initCopyButton();
 	}
+
+	initCopyButton() {
+		const { shadowRoot } = this;
+		const btn = shadowRoot.querySelector('.copy');
+		btn.addEventListener('click', this.copyTicketId.bind(this));
+	}
+
+	copyTicketId() {
+		const { shadowRoot } = this;
+		const range = document.createRange();
+		const selection = window.getSelection();
+		const idElement = shadowRoot.querySelector('.id');
+		range.selectNode(idElement);
+		selection.removeAllRanges();
+		selection.addRange(range);
+		document.execCommand('copy');
+		selection.removeAllRanges();
+	}
+
+
 	set id(id) {
 		const { shadowRoot } = this;
 		const link = shadowRoot.querySelector('.id');

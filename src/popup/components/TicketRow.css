@@ -14,8 +14,8 @@ a {
 	color: inherit;
 	text-decoration: none;
 }
-.id {
-	width: 7em;
+.copy {
+	cursor: pointer;
 }
 
 .summary {
