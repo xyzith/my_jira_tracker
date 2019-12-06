@@ -30,8 +30,8 @@ class TicketRow extends HTMLElement {
 		const { shadowRoot } = this;
 		const range = document.createRange();
 		const selection = window.getSelection();
-		const idElement = shadowRoot.querySelector('.id');
-		range.selectNode(idElement);
+		const idText = shadowRoot.querySelector('.id').childNodes[0];
+		range.selectNode(idText);
 		selection.removeAllRanges();
 		selection.addRange(range);
 		document.execCommand('copy');
