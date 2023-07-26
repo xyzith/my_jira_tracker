@@ -30,8 +30,9 @@
 	filter: none;
 }
 
-.tab-label .name:disabled {
+.tab-label .name:read-only {
 	background-color: transparent;
+  outline: none;
 	cursor: pointer;
 }
 

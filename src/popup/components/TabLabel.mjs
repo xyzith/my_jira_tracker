@@ -94,7 +94,7 @@ class TabLabel extends HTMLElement {
 
 	enableInput() {
 		const { inputEl } = this;
-		inputEl.disabled = false;
+		inputEl.readOnly = false;
 	}
 
 	saveName() {
@@ -104,7 +104,7 @@ class TabLabel extends HTMLElement {
 		const traget = tabs.find(({ id }) => tabId === id);
 		traget.name = value;
 		storage.save('tabs', tabs);
-		inputEl.disabled = true;
+		inputEl.readOnly = true;
 	}
 
 	selectTab() {
